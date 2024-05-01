@@ -1,0 +1,936 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Project "Podkrepi.bg" {
+  database_type: 'PostgreSQL'
+  Note: ''
+}
+
+Table people {
+  id String [pk]
+  firstName String [not null]
+  lastName String [not null]
+  email String [unique]
+  phone String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  newsletter Boolean [default: false]
+  helpUsImprove Boolean [default: false]
+  address String
+  birthday DateTime
+  emailConfirmed Boolean [default: false]
+  personalNumber String [unique, note: 'Uniform Civil Number (NCN, EGN)
+https://en.wikipedia.org/wiki/National_identification_number#Bulgaria']
+  companyId String [unique]
+  keycloakId String [unique]
+  stripeCustomerId String [unique]
+  picture String
+  profileEnabled Boolean [not null, default: true]
+  benefactors benefactors [not null]
+  beneficiaries beneficiaries [not null]
+  campaignFiles campaign_files [not null]
+  campaigns campaigns [not null]
+  coordinators coordinators
+  documents documents [not null]
+  donationWish donation_wishes [not null]
+  Donation donations [not null]
+  expenses expenses [not null]
+  infoRequests info_requests [not null]
+  irregularities irregularities [not null]
+  irregularityFiles irregularity_files [not null]
+  expenseFiles expense_files [not null]
+  organizer organizers
+  recurringDonations recurring_donations [not null]
+  supporters supporters [not null]
+  transfers transfers [not null]
+  withdrawals withdrawals [not null]
+  publishedNews campaign_news [not null]
+  newsFiles campaign_news_files [not null]
+  company companies
+
+  Note: 'Generic person object'
+}
+
+Table companies {
+  id String [pk]
+  companyName String [not null]
+  companyNumber String [unique, not null, note: 'BULSTAT Unified Identification Code (UIC)
+https://psc.egov.bg/en/psc-starting-a-business-bulstat']
+  legalPersonName String
+  countryCode String
+  cityId String
+  personId String [unique]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  beneficiaries beneficiaries [not null]
+  Campaign campaigns [not null]
+  person people
+  affiliate affiliates
+}
+
+Table affiliates {
+  id String [pk]
+  status AffiliateStatus [not null, default: 'pending']
+  affiliateCode String [unique]
+  companyId String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  company companies [not null]
+  payments payments [not null]
+}
+
+Table organizers {
+  id String [pk]
+  personId String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  person people [not null]
+  beneficiaries beneficiaries [not null]
+  campaigns campaigns [not null]
+
+  Note: 'Organizer is the person who manages the campaign on behalf of the Beneficiary'
+}
+
+Table coordinators {
+  id String [pk]
+  personId String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  person people [not null]
+  beneficiaries beneficiaries [not null]
+  campaigns campaigns [not null]
+
+  Note: 'Coordinator is the person who manages the campaign on behalf of Podkrepi.bg'
+}
+
+Table benefactors {
+  id String [pk]
+  personId String [not null]
+  extCustomerId String [unique, note: 'Payment provider customer id']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  person people [not null]
+
+  Note: 'Benefactor is the person who gives money'
+}
+
+Table beneficiaries {
+  id String [pk]
+  type BeneficiaryType [not null]
+  personId String [note: 'Person in need when type is `individual`']
+  coordinatorId String
+  countryCode String [not null]
+  cityId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  coordinatorRelation PersonRelation [default: 'none']
+  description String
+  privateData Json
+  publicData Json
+  companyId String [note: 'Company in need when type is `company`']
+  organizerId String [note: 'Organizer for this beneficiary']
+  organizerRelation PersonRelation [default: 'none']
+  city cities [not null]
+  company companies
+  coordinator coordinators
+  organizer organizers
+  person people
+  campaigns campaigns [not null]
+
+  Note: 'Beneficiary is the person who receives the benefit'
+}
+
+Table campaign_types {
+  id String [pk]
+  name String [not null]
+  slug String [unique, not null]
+  description String
+  parentId String
+  category CampaignTypeCategory [not null, default: 'others']
+  parent campaign_types
+  children campaign_types [not null]
+  campaigns campaigns [not null]
+}
+
+Table campaigns {
+  id String [pk]
+  state CampaignState [not null, default: 'draft']
+  slug String [unique, not null]
+  title String [not null]
+  essence String [not null]
+  coordinatorId String [not null]
+  beneficiaryId String [not null]
+  campaignTypeId String [not null]
+  description String
+  targetAmount Int [default: 0]
+  startDate DateTime
+  endDate DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  deletedAt DateTime
+  approvedById String
+  currency Currency [not null, default: 'BGN']
+  allowDonationOnComplete Boolean [not null, default: false]
+  paymentReference String [unique, not null]
+  organizerId String
+  companyId String
+  approvedBy people
+  beneficiary beneficiaries [not null]
+  campaignType campaign_types [not null]
+  coordinator coordinators [not null]
+  organizer organizers
+  company companies
+  campaignFiles campaign_files [not null]
+  donationWish donation_wishes [not null]
+  irregularities irregularities [not null]
+  outgoingTransfers transfers [not null]
+  incomingTransfers transfers [not null]
+  vaults vaults [not null]
+  withdrawals withdrawals [not null]
+  slugArchive slug_archive [not null]
+  campaignNews campaign_news [not null]
+  notificationLists notification_list [not null]
+}
+
+Table campaign_news {
+  id String [pk]
+  campaignId String [not null]
+  publisherId String [not null]
+  slug String [unique, not null]
+  title String [not null]
+  author String [not null]
+  sourceLink String
+  state CampaignNewsState [not null, default: 'draft']
+  createdAt DateTime [default: `now()`, not null]
+  publishedAt DateTime
+  editedAt DateTime
+  description String [not null]
+  campaign campaigns [not null]
+  publisher people [not null]
+  newsFiles campaign_news_files [not null]
+}
+
+Table notification_list {
+  id String [pk]
+  campaignId String [not null]
+  name String
+  campaign campaigns [not null]
+}
+
+Table marketing_templates {
+  id String [pk]
+  name String
+}
+
+Table unregistered_notification_consent {
+  id String [pk]
+  email String [unique, not null]
+  consent Boolean [not null, default: false]
+}
+
+Table email_sent_registry {
+  id String [pk]
+  email String [not null]
+  dateSent DateTime [not null]
+  campaignId String
+  type EmailType [not null]
+}
+
+Table slug_archive {
+  slug String [pk]
+  campaignId String [not null, note: 'Stores the id of the last campaign that has used it']
+  campaign campaigns [not null]
+
+  Note: 'Keeps track of previous slugs that are not used currently in any active campaign'
+}
+
+Table irregularities {
+  id String [pk]
+  campaignId String [not null]
+  personId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  status IrregularityStatus [not null, default: 'initial']
+  reason IrregularityReason [not null, default: 'other']
+  description String [not null]
+  notifierType NotifierType [not null, default: 'other']
+  campaign campaigns [not null]
+  person people [not null]
+  files irregularity_files [not null]
+}
+
+Table campaign_files {
+  id String [pk]
+  filename String [not null]
+  campaignId String [not null]
+  personId String [not null]
+  mimetype String [not null]
+  role CampaignFileRole [not null]
+  campaign campaigns [not null]
+  person people [not null]
+}
+
+Table campaign_news_files {
+  id String [pk]
+  filename String [not null]
+  newsId String [not null]
+  personId String [not null]
+  mimetype String [not null]
+  role CampaignFileRole [not null]
+  news campaign_news [not null]
+  person people [not null]
+}
+
+Table irregularity_files {
+  id String [pk]
+  filename String [not null]
+  mimetype String [not null]
+  irregularityId String [not null]
+  uploaderId String [not null]
+  irregularity irregularities [not null]
+  uploadedBy people [not null]
+}
+
+Table info_requests {
+  id String [pk]
+  personId String [not null]
+  message String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  deletedAt DateTime
+  person people [not null]
+}
+
+Table supporters {
+  id String [pk]
+  personId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  deletedAt DateTime
+  comment String
+  associationMember Boolean [not null, default: false]
+  benefactorCampaign Boolean [not null, default: false]
+  benefactorPlatform Boolean [not null, default: false]
+  companyOtherText String
+  companySponsor Boolean [not null, default: false]
+  companyVolunteer Boolean [not null, default: false]
+  partnerBussiness Boolean [not null, default: false]
+  partnerNpo Boolean [not null, default: false]
+  partnerOtherText String
+  roleAssociationMember Boolean [not null, default: false]
+  roleBenefactor Boolean [not null, default: false]
+  roleCompany Boolean [not null, default: false]
+  rolePartner Boolean [not null, default: false]
+  roleVolunteer Boolean [not null, default: false]
+  volunteerBackend Boolean [not null, default: false]
+  volunteerDesigner Boolean [not null, default: false]
+  volunteerDevOps Boolean [not null, default: false]
+  volunteerFinancesAndAccounts Boolean [not null, default: false]
+  volunteerFrontend Boolean [not null, default: false]
+  volunteerLawyer Boolean [not null, default: false]
+  volunteerMarketing Boolean [not null, default: false]
+  volunteerProjectManager Boolean [not null, default: false]
+  volunteerQa Boolean [not null, default: false]
+  volunteerSecurity Boolean [not null, default: false]
+  person people [not null]
+}
+
+Table cities {
+  id String [pk]
+  name String [not null]
+  postalCode String [unique, not null]
+  countryId String [not null]
+  countryCode countries [not null]
+  beneficiaries beneficiaries [not null]
+}
+
+Table countries {
+  id String [pk]
+  name String [not null]
+  countryCode String [unique, not null]
+  cities cities [not null]
+}
+
+Table vaults {
+  id String [pk]
+  currency Currency [not null, default: 'BGN']
+  amount Int [not null, default: 0]
+  campaignId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  name String [not null, default: '']
+  blockedAmount Int [not null, default: 0]
+  campaign campaigns [not null]
+  donations donations [not null]
+  expenses expenses [not null]
+  recurringDonations recurring_donations [not null]
+  sourceTransfers transfers [not null]
+  targetTransfers transfers [not null]
+  withdraws withdrawals [not null]
+}
+
+Table payments {
+  id String [pk]
+  extCustomerId String [not null]
+  extPaymentIntentId String [unique, not null]
+  extPaymentMethodId String [not null]
+  type PaymentType [not null]
+  currency Currency [not null, default: 'BGN']
+  status PaymentStatus [not null, default: 'initial']
+  provider PaymentProvider [not null, default: 'none']
+  affiliateId String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  chargedAmount Int [not null, default: 0]
+  amount Int [not null, default: 0]
+  billingEmail String
+  billingName String
+  affiliate affiliates
+  donations donations [not null]
+}
+
+Table donations {
+  id String [pk]
+  paymentId String [not null]
+  type DonationType [not null]
+  targetVaultId String [not null, note: 'Vault where the funds are going']
+  amount Int [not null, default: 0]
+  personId String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  person people
+  targetVault vaults [not null]
+  DonationWish donation_wishes
+  metadata donation_metadata
+  payment payments [not null]
+}
+
+Table donation_metadata {
+  donationId String [pk]
+  name String
+  createdAt DateTime [default: `now()`, not null]
+  extraData Json
+  donation donations [not null]
+}
+
+Table donation_wishes {
+  id String [pk]
+  message String [not null]
+  campaignId String [not null]
+  personId String
+  donationId String [unique]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  campaign campaigns [not null]
+  person people
+  donation donations
+}
+
+Table recurring_donations {
+  id String [pk]
+  status RecurringDonationStatus [not null]
+  vaultId String [not null]
+  personId String [not null]
+  extSubscriptionId String [not null, note: 'Payment provider Subscription id']
+  extCustomerId String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  amount Int [not null, default: 0]
+  currency Currency [not null, default: 'BGN']
+  person people [not null]
+  sourceVault vaults [not null]
+
+  Note: 'Donate on monthly basis'
+}
+
+Table transfers {
+  id String [pk]
+  status TransferStatus [not null, default: 'initial']
+  currency Currency [not null]
+  amount Int [not null, default: 0]
+  reason String [not null]
+  sourceVaultId String [not null, note: 'Source vault']
+  sourceCampaignId String [not null]
+  targetVaultId String [not null, note: 'Destination vault']
+  targetCampaignId String [not null]
+  approvedById String
+  documentId String
+  targetDate DateTime [default: `now()`]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  approvedBy people
+  sourceCampaign campaigns [not null]
+  sourceVault vaults [not null]
+  targetCampaign campaigns [not null]
+  targetVault vaults [not null]
+
+  Note: 'Move funds from one vault to another'
+}
+
+Table withdrawals {
+  id String [pk]
+  status WithdrawStatus [not null, default: 'initial']
+  currency Currency [not null]
+  amount Int [not null, default: 0]
+  reason String [not null]
+  sourceVaultId String [not null, note: 'Source vault']
+  sourceCampaignId String [not null]
+  bankAccountId String [not null, note: 'Destination bank account']
+  documentId String
+  approvedById String
+  targetDate DateTime [default: `now()`]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  approvedBy people
+  bankAccount bank_accounts [not null]
+  sourceCampaign campaigns [not null]
+  sourceVault vaults [not null]
+
+  Note: 'Remove funds from a vault to given bank account'
+}
+
+Table bank_accounts {
+  id String [pk]
+  status BankAccountStatus [not null, default: 'new']
+  ibanNumber String [not null, note: 'IBAN number']
+  accountHolderName String [not null, note: 'Name of account holder']
+  accountHolderType AccountHolderType [not null, note: 'Company or individual']
+  bankName String [note: 'Bank name']
+  bankIdCode String [note: 'Bank Identification Code, BIC/SWIFT code']
+  fingerprint String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime
+  withdraws withdrawals [not null]
+}
+
+Table bank_transactions {
+  id String [pk]
+  ibanNumber String [not null, note: 'IBAN number of the account tracked']
+  bankName String [not null, note: 'Bank name']
+  bankIdCode String [not null, note: 'Bank Identification Code, BIC/SWIFT code']
+  transactionDate DateTime [not null]
+  senderName String
+  recipientName String
+  senderIban String
+  recipientIban String
+  amount Float [not null, default: 0]
+  currency Currency [not null, default: 'BGN']
+  description String [not null]
+  matchedRef String
+  type BankTransactionType [not null]
+  bankDonationStatus BankDonationStatus
+  notified Boolean [default: false]
+}
+
+Table expenses {
+  id String [pk]
+  type ExpenseType [not null]
+  description String
+  vaultId String [not null]
+  documentId String
+  approvedById String
+  amount Int [not null, default: 0]
+  currency Currency [not null, default: 'BGN']
+  status ExpenseStatus [not null]
+  deleted Boolean [not null, default: false]
+  approvedBy people
+  document documents
+  vault vaults [not null]
+  spentAt DateTime [default: `now()`, not null]
+  expenseFiles expense_files [not null]
+
+  Note: 'Pay for something from a given vault'
+}
+
+Table expense_files {
+  id String [pk]
+  filename String [not null]
+  mimetype String [not null]
+  expenseId String [not null]
+  uploaderId String [not null]
+  expense expenses [not null]
+  uploadedBy people [not null]
+}
+
+Table documents {
+  id String [pk]
+  type DocumentType [not null]
+  name String [not null]
+  filename String [not null]
+  filetype String
+  description String
+  sourceUrl String [not null, note: 'Data storage source url']
+  ownerId String [not null, note: 'Person who uploaded the document']
+  owner people [not null]
+  expenses expenses [not null]
+}
+
+Table bank_transactions_files {
+  id String [pk]
+  filename String [not null]
+  mimetype String [not null]
+  bankTransactionsFileId String [not null]
+  type BankTransactionsFileType [not null, default: 'xml']
+  personId String [not null]
+}
+
+Enum BeneficiaryType {
+  individual
+  company
+}
+
+Enum PersonRelation {
+  none
+  parent
+  spouse
+  child
+  mother
+  father
+  brother
+  sister
+  friend
+  relative
+  partner
+  domesticPartner
+  manager
+  assistant
+  colleague
+  myself
+  myorg
+}
+
+Enum CampaignState {
+  initial
+  draft
+  pending_validation
+  approved
+  rejected
+  active
+  active_pending_validation
+  suspended
+  complete
+  disabled
+  error
+  deleted
+}
+
+Enum CampaignNewsState {
+  draft
+  published
+}
+
+Enum Currency {
+  BGN
+  EUR
+  USD
+}
+
+Enum ExpenseStatus {
+  pending
+  approved
+  canceled
+}
+
+Enum ExpenseType {
+  none
+  internal
+  operating
+  administrative
+  medical
+  services
+  groceries
+  transport
+  accommodation
+  shipping
+  utility
+  rental
+  legal
+  bank
+  advertising
+  other
+}
+
+Enum PaymentProvider {
+  none
+  stripe
+  paypal
+  epay
+  bank
+  cash
+}
+
+Enum DocumentType {
+  invoice
+  receipt
+  medical_record
+  other
+}
+
+Enum DonationType {
+  donation
+  corporate
+}
+
+Enum PaymentType {
+  single
+  category
+  benevity
+}
+
+Enum PaymentStatus {
+  initial
+  invalid
+  incomplete
+  declined
+  waiting
+  cancelled
+  guaranteed
+  succeeded
+  deleted
+  refund
+  paymentRequested
+}
+
+Enum RecurringDonationStatus {
+  trialing
+  active
+  canceled
+  incomplete
+  incompleteExpired
+  pastDue
+  unpaid
+}
+
+Enum WithdrawStatus {
+  initial
+  invalid
+  incomplete
+  declined
+  cancelled
+  succeeded
+}
+
+Enum TransferStatus {
+  initial
+  invalid
+  incomplete
+  declined
+  cancelled
+  succeeded
+}
+
+Enum AccountHolderType {
+  individual
+  company
+}
+
+Enum BankAccountStatus {
+  new
+  validated
+  verified
+  verification_failed
+  errored
+}
+
+Enum BankTransactionType {
+  debit
+  credit
+}
+
+Enum BankDonationStatus {
+  unrecognized
+  imported
+  incomplete
+  reImported
+  importFailed
+}
+
+Enum CampaignTypeCategory {
+  medical
+  charity
+  disasters
+  education
+  events
+  environment
+  sport
+  art
+  nature
+  animals
+  others
+}
+
+Enum AffiliateStatus {
+  active
+  pending
+  cancelled
+  rejected
+}
+
+Enum CampaignFileRole {
+  background
+  coordinator
+  campaignPhoto
+  invoice
+  document
+  profilePhoto
+  campaignListPhoto
+  beneficiaryPhoto
+  organizerPhoto
+  gallery
+}
+
+Enum IrregularityStatus {
+  initial
+  confirmed
+  declined
+}
+
+Enum IrregularityReason {
+  duplicate
+  inappropriate
+  illegalActivity
+  misinformation
+  privacyViolation
+  spam
+  irrelevant
+  political
+  discrimination
+  explicitContent
+  fraud
+  other
+}
+
+Enum NotifierType {
+  benefactor
+  other
+}
+
+Enum BankTransactionsFileType {
+  xml
+  other
+}
+
+Enum EmailType {
+  confirmConsent
+  confirmCampaignConsent
+  raised50
+  raised90
+  raised100
+}
+
+Ref: people.companyId - companies.id
+
+Ref: affiliates.companyId - companies.id
+
+Ref: organizers.personId - people.id
+
+Ref: coordinators.personId - people.id
+
+Ref: benefactors.personId > people.id
+
+Ref: beneficiaries.cityId > cities.id
+
+Ref: beneficiaries.companyId > companies.id
+
+Ref: beneficiaries.coordinatorId > coordinators.id
+
+Ref: beneficiaries.organizerId > organizers.id
+
+Ref: beneficiaries.personId > people.id
+
+Ref: campaign_types.parentId - campaign_types.id
+
+Ref: campaigns.approvedById > people.id
+
+Ref: campaigns.beneficiaryId > beneficiaries.id
+
+Ref: campaigns.campaignTypeId > campaign_types.id [delete: Cascade]
+
+Ref: campaigns.coordinatorId > coordinators.id
+
+Ref: campaigns.organizerId > organizers.id
+
+Ref: campaigns.companyId > companies.id
+
+Ref: campaign_news.campaignId > campaigns.id
+
+Ref: campaign_news.publisherId > people.id
+
+Ref: notification_list.campaignId > campaigns.id
+
+Ref: slug_archive.campaignId > campaigns.id
+
+Ref: irregularities.campaignId > campaigns.id
+
+Ref: irregularities.personId > people.id
+
+Ref: campaign_files.campaignId > campaigns.id
+
+Ref: campaign_files.personId > people.id
+
+Ref: campaign_news_files.newsId > campaign_news.id [delete: Cascade]
+
+Ref: campaign_news_files.personId > people.id
+
+Ref: irregularity_files.irregularityId > irregularities.id
+
+Ref: irregularity_files.uploaderId > people.id
+
+Ref: info_requests.personId > people.id
+
+Ref: supporters.personId > people.id
+
+Ref: cities.countryId > countries.id
+
+Ref: vaults.campaignId > campaigns.id
+
+Ref: payments.affiliateId > affiliates.id
+
+Ref: donations.personId > people.id
+
+Ref: donations.targetVaultId > vaults.id
+
+Ref: donations.paymentId > payments.id
+
+Ref: donation_metadata.donationId - donations.id
+
+Ref: donation_wishes.campaignId > campaigns.id
+
+Ref: donation_wishes.personId > people.id
+
+Ref: donation_wishes.donationId - donations.id
+
+Ref: recurring_donations.personId > people.id
+
+Ref: recurring_donations.vaultId > vaults.id
+
+Ref: transfers.approvedById > people.id
+
+Ref: transfers.sourceCampaignId > campaigns.id
+
+Ref: transfers.sourceVaultId > vaults.id
+
+Ref: transfers.targetCampaignId > campaigns.id
+
+Ref: transfers.targetVaultId > vaults.id
+
+Ref: withdrawals.approvedById > people.id
+
+Ref: withdrawals.bankAccountId > bank_accounts.id
+
+Ref: withdrawals.sourceCampaignId > campaigns.id
+
+Ref: withdrawals.sourceVaultId > vaults.id
+
+Ref: expenses.approvedById > people.id
+
+Ref: expenses.documentId > documents.id
+
+Ref: expenses.vaultId > vaults.id
+
+Ref: expense_files.expenseId > expenses.id
+
+Ref: expense_files.uploaderId > people.id
+
+Ref: documents.ownerId > people.id

@@ -1,0 +1,24 @@
+{
+  "name": "sendgrid-init2",
+  "packageManager": "yarn@3.3.0",
+  "scripts": {
+    "build": "yarn prisma migrate dev && yarn prisma generate",
+    "start": "tsc && node index.js"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.11.0",
+    "@types/node": "^20.11.30",
+    "prisma-dbml-generator": "^0.12.0",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.1",
+    "@types/bent": "^7.3.8",
+    "@types/debug": "^4.1.12",
+    "async-gzip-gunzip": "^1.0.2",
+    "bent": "^7.3.12",
+    "debug": "^4.3.4",
+    "dotenv": "^16.4.5",
+    "prisma": "^5.11.0"
+  }
+}
