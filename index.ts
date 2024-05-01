@@ -234,7 +234,7 @@ async function main() {
     }
   }
 
-  const CHUNK_SIZE = 20;
+  const CHUNK_SIZE = process.env.CHUNK_SIZE as unknown as number;
 
   debug(`Splitting sendList into chunks of ${CHUNK_SIZE} elements`);
   const emailListChunked = Array.from(sendList.entries()).reduce<
