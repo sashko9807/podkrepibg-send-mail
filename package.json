@@ -3,7 +3,7 @@
   "packageManager": "yarn@3.3.0",
   "scripts": {
     "build": "yarn prisma migrate dev && yarn prisma generate",
-    "start": "tsc && node index.js"
+    "start": "tsc && node ./build/index.js"
   },
   "devDependencies": {
     "@prisma/client": "^5.11.0",
