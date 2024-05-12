@@ -5,6 +5,6 @@
 ```
 cp .env.example .env
 yarn install
-yarn build
+yarn prisma generate
 yarn start
 ```

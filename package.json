@@ -2,7 +2,6 @@
   "name": "sendgrid-init2",
   "packageManager": "yarn@3.3.0",
   "scripts": {
-    "build": "yarn prisma migrate dev && yarn prisma generate",
     "start": "tsc && node ./build/index.js"
   },
   "devDependencies": {
